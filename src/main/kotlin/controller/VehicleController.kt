@@ -109,4 +109,24 @@ class VehicleController {
 
         return response.isSuccessful
     }
+
+    fun updateVehicleStatus(vehicleId: Int, imei:String, isStopped: Boolean): Boolean {
+        val url = "vehicle_coordinates?imei=eq.$imei"
+
+        val jsonBody = """
+        {
+            "isStopped": $isStopped
+        }
+        """.trimIndent()
+
+        val requestBody = jsonBody.toRequestBody("application/json".toMediaType())
+
+        val response = apiClient.makeRequest(url, "PATCH", requestBody)
+
+        if (!response.isSuccessful) {
+            println("Falha ao atualizar o status do veículo $vehicleId. Código: ${response.code}. Resposta: ${response.body?.string()}")
+        }
+
+        return response.isSuccessful
+    }
 }

@@ -1,11 +1,11 @@
 import controller.VehicleController
+import java.io.File
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import kotlin.random.Random
 import java.util.Timer
 import java.util.TimerTask
 import kotlin.math.*
-import java.io.File
-import java.io.ObjectOutputStream
-import java.io.ObjectInputStream
 
 fun haversine(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
     val R = 6371.0 // Raio da Terra em km
@@ -40,12 +40,14 @@ fun main() {
     }
 
     val timer = Timer()
+
     val vehicleStates = loadVehicleState() ?: mutableMapOf()
     val vehicleSpeeds = mutableMapOf<String, Double>()
     val vehiclePaused = mutableMapOf<String, Boolean>()
     val vehiclePauseTime = mutableMapOf<String, Long>()
     val vehicleLastUpdateTime = mutableMapOf<String, Long>()
     val vehicleHasDefect = mutableMapOf<String, Boolean>()
+    val vehicleIsStopped = mutableMapOf<String, Boolean>()
 
     vehicles.forEach { vehicle ->
         if (vehicleStates[vehicle.imei] == null) {
@@ -60,6 +62,7 @@ fun main() {
         vehiclePauseTime[vehicle.imei] = 0
         vehicleLastUpdateTime[vehicle.imei] = System.currentTimeMillis()
         vehicleHasDefect[vehicle.imei] = false
+        vehicleIsStopped[vehicle.imei] = false
 
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
@@ -70,8 +73,22 @@ fun main() {
                     val (prevLat, prevLon) = prevCoords
                     val speed = vehicleSpeeds[vehicle.imei]!!
 
+                    // Se o backend não está respondendo, considere o veículo como parado
+                    if (!isApplicationRunning()) {
+                        vehicleIsStopped[vehicle.imei] = true
+                        vehicleController.updateVehicleStatus(vehicle.id, vehicle.imei, true) // Atualiza isStopped no banco de dados
+                        println("Veículo ${vehicle.id} parou devido a falha na aplicação.")
+                        return
+                    }
+
+                    // Se o backend está online, resetar isStopped para false
+                    vehicleIsStopped[vehicle.imei] = false
+                    vehicleController.updateVehicleStatus(vehicle.id, vehicle.imei, false) // Atualiza isStopped no banco de dados
+
                     // Verifica se o veículo já teve um defeito
                     if (vehicleHasDefect[vehicle.imei] == true) {
+                        vehicleIsStopped[vehicle.imei] = true
+                        vehicleController.updateVehicleStatus(vehicle.id, vehicle.imei, true) // Atualiza isStopped no banco de dados
                         println("Veículo ${vehicle.id} está parado devido a um defeito técnico. Aguarde suporte.")
                         return // Não faz mais atualizações
                     }
@@ -82,6 +99,8 @@ fun main() {
                             vehiclePaused[vehicle.imei] = false
                             println("Veículo ${vehicle.id} retomou a movimentação após a pausa.")
                         } else {
+                            vehicleIsStopped[vehicle.imei] = true
+                            vehicleController.updateVehicleStatus(vehicle.id, vehicle.imei, true) // Atualiza isStopped no banco de dados
                             println("Veículo ${vehicle.id} está parado e não está atualizando as coordenadas.")
                             return // Não atualiza as coordenadas ou quilometragem
                         }
@@ -93,12 +112,17 @@ fun main() {
                         vehiclePauseTime[vehicle.imei] = currentTime + Random.nextLong(10000, 30000) // Pausa por 10 a 30 segundos
 
                         // Verificar se há defeito técnico
-                        if (Random.nextDouble() < 0.2) { // 20% de chance de ter um defeito técnico
+                        if (Random.nextDouble() < 0.0) { // 20% de chance de ter um defeito técnico
                             vehicleHasDefect[vehicle.imei] = true
+                            vehicleIsStopped[vehicle.imei] = true
+                            vehicleController.updateVehicleStatus(vehicle.id, vehicle.imei, true) // Atualiza isStopped no banco de dados
                             println("Veículo ${vehicle.id} parou devido a um defeito técnico. Problema no motor ou pneu.")
                             return // Não atualiza mais até o suporte ser solicitado
                         } else {
+                            vehicleIsStopped[vehicle.imei] = true
+                            vehicleController.updateVehicleStatus(vehicle.id, vehicle.imei, true) // Atualiza isStopped no banco de dados
                             println("Veículo ${vehicle.id} parou para uma pausa normal (abastecimento, descarregamento, etc.).")
+                            return // Não atualiza mais até o suporte ser solicitado
                         }
                     }
 
@@ -150,11 +174,18 @@ fun main() {
         }, 0, 5000) // Atualiza a cada 5 segundos
     }
 
-    // Salva o estado dos veículos antes de encerrar a aplicação
     Runtime.getRuntime().addShutdownHook(Thread {
+        // Atualiza todos os veículos para estado parado ao parar a aplicação
+        vehicles.forEach { vehicle ->
+            vehicleIsStopped[vehicle.imei] = true
+            vehicleController.updateVehicleStatus(vehicle.id, vehicle.imei, true) // Atualiza isStopped no banco de dados
+        }
         saveVehicleState(vehicleStates)
+        println("Estado do veículo salvo e aplicação parada.")
     })
+}
 
-    // Impede que o main termine imediatamente
-    Thread.sleep(Long.MAX_VALUE)
+fun isApplicationRunning(): Boolean {
+    // Simule a verificação do estado da aplicação
+    return true // Retorne `false` se o backend estiver fora do ar
 }
