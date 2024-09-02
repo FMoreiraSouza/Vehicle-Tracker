@@ -1,8 +1,8 @@
-# Simulador de Rastreador
+# Vehicle Tracker
 
 ## Descrição
 
-O **Simulador de Rastreador** é uma aplicação de backend desenvolvida em Kotlin que simula o funcionamento de um rastreador veicular. Esta aplicação fornece uma API para gerar e monitorar dados de rastreamento de veículos, sem a necessidade de hardware real.
+O **Vehicle Tracker** é uma aplicação de backend desenvolvida em Kotlin que simula o funcionamento de um rastreador veicular. Esta aplicação fornece uma API para gerar e monitorar dados de rastreamento de veículos, sem a necessidade de hardware real.
 
 ## Funcionalidades
 
