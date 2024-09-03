@@ -14,6 +14,6 @@ O **Vehicle Tracker** é uma aplicação de backend desenvolvida em Kotlin que s
 
 - **Kotlin:** Linguagem de programação usada no desenvolvimento.
 
-## Requisitos
+## Ambiente de Desenvolvimento
 
-- **IDE:** IntelliJ IDEA ou Android Studio recomendados para desenvolvimento Kotlin.
+- **IDE:** IntelliJ IDEA.
