@@ -1,9 +1,10 @@
 package domain.model
 
+import com.squareup.moshi.Json
 import java.io.Serializable
 
 data class VehicleState(
-    val latitude: Double,
-    val longitude: Double,
-    val mileage: Double
+    @Json(name = "latitude") val latitude: Double,
+    @Json(name = "longitude") val longitude: Double,
+    @Json(name = "mileage") val mileage: Double
 ) : Serializable

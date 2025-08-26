@@ -6,7 +6,7 @@ import java.io.File
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 
-class FileVehicleStateRepositoryImpl : VehicleStateRepository {
+class VehicleStateRepositoryImpl : VehicleStateRepository {
     private val file = File("vehicle_state.dat")
     private val states = loadStates() ?: mutableMapOf()
 
@@ -42,7 +42,6 @@ class FileVehicleStateRepositoryImpl : VehicleStateRepository {
                             ObjectOutputStream(file.outputStream()).use { it.writeObject(newStates) }
                             newStates
                         } else if (rawData.values.firstOrNull() is VehicleState) {
-                            // Dados já estão no formato novo (Map<String, VehicleState>)
                             rawData as MutableMap<String, VehicleState>
                         } else {
                             println("Formato de dados inválido em vehicle_state.dat, reiniciando arquivo")
@@ -59,7 +58,7 @@ class FileVehicleStateRepositoryImpl : VehicleStateRepository {
             }
         } catch (e: Exception) {
             println("Falha ao carregar estados dos veículos: ${e.message}, reiniciando arquivo")
-            file.delete() // Remove o arquivo corrompido
+            file.delete()
             null
         }
     }

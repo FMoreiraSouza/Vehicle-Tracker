@@ -1,8 +1,12 @@
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import presentation.SimulationRunner
 
-fun main() {
+suspend fun main() {
     val simulationRunner = SimulationRunner()
     simulationRunner.startSimulation()
 
-    Thread.sleep(Long.MAX_VALUE)
+    withContext(Dispatchers.IO) {
+        Thread.sleep(Long.MAX_VALUE)
+    }
 }

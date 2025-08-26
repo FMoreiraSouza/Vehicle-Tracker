@@ -1,24 +1,33 @@
 package presentation
 
 import application.service.VehicleSimulationService
+import domain.repository.VehicleCoordinatesRepository
 import domain.usecase.SimulateVehicleMovement
 import infrastructure.api.APIClient
-import infrastructure.api.SupabaseVehicleRepositoryImpl
-import infrastructure.persistence.FileVehicleStateRepositoryImpl
+import infrastructure.api.VehicleRepositoryImpl
+import infrastructure.api.NotificationRepositoryImpl
+import infrastructure.api.VehicleCoordinatesRepositoryImpl
+import infrastructure.persistence.VehicleStateRepositoryImpl
 import kotlinx.coroutines.runBlocking
 import java.util.Timer
 import java.util.TimerTask
 
 class SimulationRunner {
 
-    fun startSimulation() {
-        val vehicleRepository = SupabaseVehicleRepositoryImpl(APIClient())
-        val vehicleStateRepository = FileVehicleStateRepositoryImpl()
+    suspend fun startSimulation() {
+        val apiClient = APIClient()
+        val vehicleRepository = VehicleRepositoryImpl(apiClient)
+        val coordinatesRepository = VehicleCoordinatesRepositoryImpl(apiClient)
+        val notificationRepository = NotificationRepositoryImpl(apiClient)
+        val vehicleStateRepository = VehicleStateRepositoryImpl()
         val simulateMovement = SimulateVehicleMovement()
+
         val simulationService = VehicleSimulationService(
-            vehicleRepository,
-            vehicleStateRepository,
-            simulateMovement
+            vehicleRepository = vehicleRepository,
+            coordinatesRepository = coordinatesRepository,
+            notificationRepository = notificationRepository,
+            vehicleStateRepository = vehicleStateRepository,
+            simulateMovement = simulateMovement
         )
 
         val timer = Timer()
@@ -30,16 +39,18 @@ class SimulationRunner {
             }
         }, 0, 5000)
 
-        setupShutdownHook(vehicleRepository)
+        setupShutdownHook(coordinatesRepository, vehicleRepository.getVehicles())
     }
 
-    private fun setupShutdownHook(vehicleRepository: SupabaseVehicleRepositoryImpl) {
+    private fun setupShutdownHook(
+        coordinatesRepository: VehicleCoordinatesRepository,
+        vehicles: List<domain.model.Vehicle>?
+    ) {
         Runtime.getRuntime().addShutdownHook(Thread {
             runBlocking {
-                val vehicles = vehicleRepository.getVehicles() ?: emptyList()
-                vehicles.forEach { vehicle ->
-                    vehicleRepository.updateStatus(vehicle.imei, true)
-                    vehicleRepository.updateSpeed(vehicle.imei, 0.0)
+                vehicles?.forEach { vehicle ->
+                    coordinatesRepository.updateStatus(vehicle.imei, true)
+                    coordinatesRepository.updateSpeed(vehicle.imei, 0.0)
                 }
                 println("Estados dos veículos salvos e aplicação parada.")
             }
