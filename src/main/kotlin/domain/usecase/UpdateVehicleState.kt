@@ -21,11 +21,26 @@ class UpdateVehicleState(
             isStopped = false
         )
 
+        val previousState = vehicleStateRepository.loadState(vehicle.imei)
+        val distanceTraveled = if (previousState != null) {
+            newState.mileage - previousState.mileage
+        } else {
+            0.0
+        }
+
         val isCoordinatesUpdated = coordinatesRepository.updateCoordinates(vehicle.imei, coordinates)
         val isMileageUpdated = vehicleRepository.updateMileage(vehicle.id, newState.mileage)
         val isSpeedUpdated = coordinatesRepository.updateSpeed(vehicle.imei, speed)
 
-        logResults(vehicle, newState, speed, isCoordinatesUpdated, isMileageUpdated, isSpeedUpdated)
+        logResults(
+            vehicle,
+            newState,
+            speed,
+            distanceTraveled,
+            isCoordinatesUpdated,
+            isMileageUpdated,
+            isSpeedUpdated
+        )
         vehicleStateRepository.saveState(vehicle.imei, newState)
     }
 
@@ -33,15 +48,17 @@ class UpdateVehicleState(
         vehicle: Vehicle,
         newState: VehicleState,
         speed: Double,
+        distanceTraveled: Double,
         isCoordinatesUpdated: Boolean,
         isMileageUpdated: Boolean,
         isSpeedUpdated: Boolean
     ) {
         val formattedMileage = String.format("%.2f", newState.mileage)
         val formattedSpeed = String.format("%.2f", speed)
+        val formattedDistance = String.format("%.2f", distanceTraveled)
 
         if (isCoordinatesUpdated) {
-            println("Veículo ${vehicle.plateNumber} atualizado com sucesso para coordenadas (${newState.latitude}, ${newState.longitude})")
+            println("Veículo ${vehicle.plateNumber} atualizado com sucesso para coordenadas (${String.format("%.6f", newState.latitude)}, ${String.format("%.6f", newState.longitude)})")
         } else {
             println("Falha ao atualizar coordenadas do veículo ${vehicle.plateNumber}.")
         }
@@ -49,11 +66,14 @@ class UpdateVehicleState(
         if (isMileageUpdated) {
             println("Veículo ${vehicle.plateNumber} atualizado com sucesso com quilometragem $formattedMileage Km")
             println("Velocidade atual: $formattedSpeed Km/h")
+            println("Distância percorrida neste intervalo: $formattedDistance Km")
         } else {
             println("Falha ao atualizar quilometragem do veículo ${vehicle.plateNumber}.")
         }
 
-        if (!isSpeedUpdated) {
+        if (isSpeedUpdated) {
+            println("Veículo ${vehicle.plateNumber} atualizado com sucesso com velocidade $formattedSpeed Km/h")
+        } else {
             println("Falha ao atualizar velocidade do veículo ${vehicle.plateNumber}.")
         }
     }
