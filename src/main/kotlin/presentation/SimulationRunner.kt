@@ -2,6 +2,7 @@ package presentation
 
 import application.service.VehicleSimulationService
 import domain.repository.VehicleCoordinatesRepository
+import domain.repository.VehicleRepository
 import domain.usecase.SimulateVehicleMovement
 import infrastructure.api.APIClient
 import infrastructure.api.VehicleRepositoryImpl
@@ -22,6 +23,8 @@ class SimulationRunner {
         val vehicleStateRepository = VehicleStateRepositoryImpl()
         val simulateMovement = SimulateVehicleMovement()
 
+        resetAllVehiclesToNoDefect(vehicleRepository)
+
         val simulationService = VehicleSimulationService(
             vehicleRepository = vehicleRepository,
             coordinatesRepository = coordinatesRepository,
@@ -40,6 +43,29 @@ class SimulationRunner {
         }, 0, 5000)
 
         setupShutdownHook(coordinatesRepository, vehicleRepository.getVehicles())
+    }
+
+    private suspend fun resetAllVehiclesToNoDefect(vehicleRepository: VehicleRepository) {
+        try {
+            val vehicles = vehicleRepository.getVehicles()
+            if (vehicles != null) {
+                var successCount = 0
+                var failCount = 0
+
+                vehicles.forEach { vehicle ->
+                    if (vehicle.hasDefect) {
+                        val success = vehicleRepository.updateDefectStatus(vehicle.id, false)
+                        if (success) {
+                            successCount++
+                        } else {
+                            failCount++
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            println("Erro ao resetar veículos: ${e.message}")
+        }
     }
 
     private fun setupShutdownHook(

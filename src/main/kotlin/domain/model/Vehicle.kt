@@ -9,5 +9,6 @@ data class Vehicle(
     @Json(name = "brand") val brand: String,
     @Json(name = "model") val model: String,
     @Json(name = "mileage") val mileage: Double,
-    @Json(name = "imei") val imei: String
+    @Json(name = "imei") val imei: String,
+    @Json(name = "hasDefect") val hasDefect: Boolean = false
 ) : Serializable

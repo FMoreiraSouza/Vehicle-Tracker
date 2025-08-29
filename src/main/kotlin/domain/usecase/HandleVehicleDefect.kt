@@ -2,19 +2,28 @@ package domain.usecase
 
 import domain.repository.NotificationRepository
 import domain.repository.VehicleCoordinatesRepository
+import domain.repository.VehicleRepository
 
 class HandleVehicleDefect(
     private val coordinatesRepository: VehicleCoordinatesRepository,
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
+    private val vehicleRepository: VehicleRepository
 ) {
     private val defectNotificationCount = mutableMapOf<String, Int>()
     private val lastNotificationTime = mutableMapOf<String, Long>()
+    private val defectStatusUpdated = mutableMapOf<String, Boolean>()
+    private val maxDefectNotifications = 2
 
     suspend fun execute(vehicle: domain.model.Vehicle, hasDefect: Boolean) {
         if (hasDefect) {
             handleDefect(vehicle)
         } else {
             resetDefectState(vehicle.imei)
+            if (defectStatusUpdated[vehicle.imei] == true) {
+                vehicleRepository.updateDefectStatus(vehicle.id, false)
+                defectStatusUpdated[vehicle.imei] = false
+                println("Status de defeito do veículo ${vehicle.plateNumber} atualizado para false.")
+            }
         }
     }
 
@@ -22,11 +31,17 @@ class HandleVehicleDefect(
         coordinatesRepository.updateStatus(vehicle.imei, true)
         coordinatesRepository.updateSpeed(vehicle.imei, 0.0)
 
+        if (defectStatusUpdated[vehicle.imei] != true) {
+            vehicleRepository.updateDefectStatus(vehicle.id, true)
+            defectStatusUpdated[vehicle.imei] = true
+            println("Status de defeito do veículo ${vehicle.plateNumber} atualizado para true.")
+        }
+
         val notificationCount = defectNotificationCount[vehicle.imei] ?: 0
         val lastTime = lastNotificationTime[vehicle.imei] ?: 0L
         val currentTime = System.currentTimeMillis()
 
-        if (notificationCount < 2 && currentTime - lastTime >= 30000) {
+        if (notificationCount < maxDefectNotifications && currentTime - lastTime >= 30000) {
             val message = if (notificationCount == 0) {
                 "Veículo ${vehicle.plateNumber} parado devido a defeito técnico. Necessita de assistência."
             } else {
@@ -51,5 +66,6 @@ class HandleVehicleDefect(
     fun initializeDefectState(imei: String) {
         defectNotificationCount[imei] = defectNotificationCount[imei] ?: 0
         lastNotificationTime[imei] = lastNotificationTime[imei] ?: 0L
+        defectStatusUpdated[imei] = defectStatusUpdated[imei] ?: false
     }
 }
