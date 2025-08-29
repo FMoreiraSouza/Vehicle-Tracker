@@ -30,7 +30,7 @@ class HandleVehicleDefect(
             val message = if (notificationCount == 0) {
                 "Veículo ${vehicle.plateNumber} parado devido a defeito técnico. Necessita de assistência."
             } else {
-                "Veículo ${vehicle.plateNumber} ainda parado por defeito técnico. Por favor, solicite suporte."
+                "Veículo ${vehicle.plateNumber} parado por defeito técnico. Por favor, solicite suporte."
             }
 
             notificationRepository.insertNotification(vehicle.plateNumber, message)

@@ -18,12 +18,17 @@ class VehicleSimulationService(
     private val vehicleStateRepository: VehicleStateRepository,
     private val simulateMovement: SimulateVehicleMovement,
     notificationRepository: NotificationRepository
-    ) {
+) {
     private val vehicleSpeeds = mutableMapOf<String, Double>()
     private val vehiclePaused = mutableMapOf<String, Boolean>()
     private val vehiclePauseTime = mutableMapOf<String, Long>()
     private val vehicleLastUpdateTime = mutableMapOf<String, Long>()
     private val vehicleHasDefect = mutableMapOf<String, Boolean>()
+
+    private val minSpeed = 20.0
+    private val maxSpeed = 100.0
+    private val speedVariationRange = 25.0
+    private val movementVariationChance = 0.25
 
     private val handleDefect = HandleVehicleDefect(coordinatesRepository, notificationRepository)
     private val handlePause = HandleVehiclePause(coordinatesRepository)
@@ -48,7 +53,8 @@ class VehicleSimulationService(
             )
         }
 
-        vehicleSpeeds[vehicle.imei] = vehicleSpeeds[vehicle.imei] ?: Random.nextDouble(40.0, 80.0)
+        vehicleSpeeds[vehicle.imei] = vehicleSpeeds[vehicle.imei] ?:
+                Random.nextDouble(minSpeed, maxSpeed)
         vehiclePaused[vehicle.imei] = vehiclePaused[vehicle.imei] ?: false
         vehiclePauseTime[vehicle.imei] = vehiclePauseTime[vehicle.imei] ?: 0L
         vehicleLastUpdateTime[vehicle.imei] = vehicleLastUpdateTime[vehicle.imei] ?: System.currentTimeMillis()
@@ -75,6 +81,9 @@ class VehicleSimulationService(
         if (vehiclePaused[vehicle.imei] == true) {
             handlePauseResume(vehicle, currentTime)
             if (vehiclePaused[vehicle.imei] == true) return
+
+            generateNewSpeed(vehicle.imei)
+            println("Veículo ${vehicle.plateNumber} retomou movimento com velocidade: ${String.format("%.2f", vehicleSpeeds[vehicle.imei])} km/h")
         }
 
         if (handlePause.shouldPause()) {
@@ -94,7 +103,6 @@ class VehicleSimulationService(
     private suspend fun handlePauseResume(vehicle: Vehicle, currentTime: Long) {
         if (currentTime >= vehiclePauseTime[vehicle.imei]!!) {
             vehiclePaused[vehicle.imei] = false
-            println("Veículo ${vehicle.plateNumber} retomou o movimento após pausa.")
         } else {
             handlePause.execute(vehicle, false)
         }
@@ -115,11 +123,34 @@ class VehicleSimulationService(
 
     private suspend fun handleVehicleMovement(vehicle: Vehicle, state: VehicleState, speed: Double, currentTime: Long) {
         val elapsedTimeHours = (currentTime - vehicleLastUpdateTime[vehicle.imei]!!) / 3600000.0
-        val newState = simulateMovement.execute(state, speed, elapsedTimeHours, Random)
 
-        updateState.execute(vehicle, newState, speed)
+        val currentSpeed = applySpeedVariation(vehicle.imei, speed)
+
+        val newState = simulateMovement.execute(state, currentSpeed, elapsedTimeHours, Random)
+        updateState.execute(vehicle, newState, currentSpeed)
 
         vehicleLastUpdateTime[vehicle.imei] = currentTime
+    }
+
+    private fun applySpeedVariation(imei: String, currentSpeed: Double): Double {
+        if (Random.nextDouble() < movementVariationChance) {
+            val smallVariation = Random.nextDouble(-8.0, 8.0)
+            val variedSpeed = (currentSpeed + smallVariation).coerceIn(minSpeed, maxSpeed)
+            vehicleSpeeds[imei] = variedSpeed
+            return variedSpeed
+        }
+        return currentSpeed
+    }
+
+    private fun generateNewSpeed(imei: String) {
+        val currentSpeed = vehicleSpeeds[imei] ?: Random.nextDouble(minSpeed, maxSpeed)
+
+        val variation = Random.nextDouble(-speedVariationRange, speedVariationRange)
+        var newSpeed = currentSpeed + variation
+
+        newSpeed = newSpeed.coerceIn(minSpeed, maxSpeed)
+
+        vehicleSpeeds[imei] = newSpeed
     }
 
     private fun isApplicationRunning(): Boolean = true
