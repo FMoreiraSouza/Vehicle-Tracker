@@ -26,8 +26,8 @@ class HandleVehiclePause(
         }
     }
 
-    fun shouldPause(): Boolean = Random.nextDouble() < 0.5
-    fun isDefect(): Boolean = Random.nextDouble() < 0.1
+    fun shouldPause(): Boolean = Random.nextDouble() < 0.4
+    fun isDefect(): Boolean = Random.nextDouble() < 0.2
     fun calculatePauseTime(): Long = System.currentTimeMillis() + Random.nextLong(10000, 30000)
 
 
