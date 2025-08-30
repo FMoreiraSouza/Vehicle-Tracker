@@ -28,8 +28,7 @@ class VehicleStateRepositoryImpl : VehicleStateRepository {
         if (!file.exists()) return null
         return try {
             ObjectInputStream(file.inputStream()).use { input ->
-                val rawData = input.readObject()
-                when (rawData) {
+                when (val rawData = input.readObject()) {
                     is MutableMap<*, *> -> {
                         if (rawData.values.firstOrNull() is Pair<*, *>) {
                             val oldStates = rawData as MutableMap<String, Pair<Pair<Double, Double>, Double>>
