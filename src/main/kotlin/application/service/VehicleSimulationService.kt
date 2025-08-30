@@ -7,10 +7,7 @@ import domain.repository.VehicleRepository
 import domain.repository.VehicleStateRepository
 import domain.repository.VehicleCoordinatesRepository
 import domain.repository.NotificationRepository
-import domain.usecase.SimulateVehicleMovement
-import domain.usecase.HandleVehicleDefect
-import domain.usecase.HandleVehiclePause
-import domain.usecase.UpdateVehicleState
+import domain.usecase.*
 import kotlin.random.Random
 
 class VehicleSimulationService(
@@ -33,7 +30,7 @@ class VehicleSimulationService(
 
     private val minSpeed = 40.0
     private val maxSpeed = 150.0
-    private val speedVariationRange = 35.0
+    private val speedVariationRange = 45.0
     private val movementVariationChance = 0.25
     private val defectCheckInterval = 30000L
 
@@ -51,8 +48,7 @@ class VehicleSimulationService(
 
     private fun initializeVehicleState(vehicle: Vehicle) {
         if (vehicleStateRepository.loadState(vehicle.imei) == null) {
-            val routeArea = RouteArea.getRandomRouteArea()
-            val (initialLat, initialLon) = RouteArea.generateRouteCoordinateInArea(routeArea)
+            val (initialLat, initialLon) = RouteArea.generateRandomCoordinate()
             val initialMileage = Random.nextDouble(0.0, 10000.0)
             vehicleStateRepository.saveState(
                 vehicle.imei,
@@ -67,7 +63,6 @@ class VehicleSimulationService(
         vehicleHasDefect[vehicle.imei] = vehicleHasDefect[vehicle.imei] ?: vehicle.hasDefect
         lastDefectCheckTime[vehicle.imei] = lastDefectCheckTime[vehicle.imei] ?: System.currentTimeMillis()
         returnActivityNotificationCount[vehicle.imei] = returnActivityNotificationCount[vehicle.imei] ?: 0
-
         handleDefect.initializeDefectState(vehicle.imei)
     }
 
@@ -230,8 +225,8 @@ class VehicleSimulationService(
 
     private fun applySpeedVariation(imei: String, currentSpeed: Double): Double {
         if (Random.nextDouble() < movementVariationChance) {
-            val smallVariation = Random.nextDouble(-8.0, 8.0)
-            val variedSpeed = (currentSpeed + smallVariation).coerceIn(minSpeed, maxSpeed)
+            val variation = Random.nextDouble(-8.0, 8.0)
+            val variedSpeed = (currentSpeed + variation).coerceIn(minSpeed, maxSpeed)
             vehicleSpeeds[imei] = variedSpeed
             return variedSpeed
         }
