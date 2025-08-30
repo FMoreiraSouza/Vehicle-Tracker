@@ -58,13 +58,13 @@ class UpdateVehicleState(
         val formattedDistance = String.format("%.2f", distanceTraveled)
 
         if (isCoordinatesUpdated) {
-            println("Veículo ${vehicle.plateNumber} atualizado com sucesso para coordenadas (${String.format("%.6f", newState.latitude)}, ${String.format("%.6f", newState.longitude)})")
+            println("Veículo ${vehicle.plateNumber} atualizado para coordenadas (${String.format("%.6f", newState.latitude)}, ${String.format("%.6f", newState.longitude)})")
         } else {
-            println("Falha ao atualizar coordenadas do veículo ${vehicle.plateNumber}.")
+            println("Não foi possível atualizar as coordenadas do veículo ${vehicle.plateNumber}.")
         }
 
         if (isMileageUpdated) {
-            println("Veículo ${vehicle.plateNumber} atualizado com sucesso com quilometragem $formattedMileage Km")
+            println("Veículo ${vehicle.plateNumber} atualizado com êxito com quilometragem $formattedMileage Km")
             println("Velocidade atual: $formattedSpeed Km/h")
             println("Distância percorrida neste intervalo: $formattedDistance Km")
         } else {
@@ -72,7 +72,7 @@ class UpdateVehicleState(
         }
 
         if (isSpeedUpdated) {
-            println("Veículo ${vehicle.plateNumber} atualizado com sucesso com velocidade $formattedSpeed Km/h")
+            println("Veículo ${vehicle.plateNumber} atualizado com êxito com velocidade $formattedSpeed Km/h")
         } else {
             println("Falha ao atualizar velocidade do veículo ${vehicle.plateNumber}.")
         }

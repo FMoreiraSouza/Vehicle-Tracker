@@ -1,11 +1,12 @@
 package application.service
 
+import domain.model.RouteArea
 import domain.model.Vehicle
 import domain.model.VehicleState
 import domain.repository.VehicleRepository
-import domain.repository.NotificationRepository
-import domain.repository.VehicleCoordinatesRepository
 import domain.repository.VehicleStateRepository
+import domain.repository.VehicleCoordinatesRepository
+import domain.repository.NotificationRepository
 import domain.usecase.SimulateVehicleMovement
 import domain.usecase.HandleVehicleDefect
 import domain.usecase.HandleVehiclePause
@@ -19,6 +20,7 @@ class VehicleSimulationService(
     private val simulateMovement: SimulateVehicleMovement,
     notificationRepository: NotificationRepository
 ) {
+
     private val vehicleSpeeds = mutableMapOf<String, Double>()
     private val vehiclePaused = mutableMapOf<String, Boolean>()
     private val vehiclePauseTime = mutableMapOf<String, Long>()
@@ -29,9 +31,9 @@ class VehicleSimulationService(
     private val returnActivityNotificationCount = mutableMapOf<String, Int>()
     private val maxReturnNotifications = 2
 
-    private val minSpeed = 20.0
-    private val maxSpeed = 100.0
-    private val speedVariationRange = 25.0
+    private val minSpeed = 40.0
+    private val maxSpeed = 150.0
+    private val speedVariationRange = 35.0
     private val movementVariationChance = 0.25
     private val defectCheckInterval = 30000L
 
@@ -49,8 +51,8 @@ class VehicleSimulationService(
 
     private fun initializeVehicleState(vehicle: Vehicle) {
         if (vehicleStateRepository.loadState(vehicle.imei) == null) {
-            val initialLat = Random.nextDouble(-90.0, 90.0)
-            val initialLon = Random.nextDouble(-180.0, 180.0)
+            val routeArea = RouteArea.getRandomRouteArea()
+            val (initialLat, initialLon) = RouteArea.generateRouteCoordinateInArea(routeArea)
             val initialMileage = Random.nextDouble(0.0, 10000.0)
             vehicleStateRepository.saveState(
                 vehicle.imei,
@@ -58,8 +60,7 @@ class VehicleSimulationService(
             )
         }
 
-        vehicleSpeeds[vehicle.imei] = vehicleSpeeds[vehicle.imei] ?:
-                Random.nextDouble(minSpeed, maxSpeed)
+        vehicleSpeeds[vehicle.imei] = vehicleSpeeds[vehicle.imei] ?: Random.nextDouble(minSpeed, maxSpeed)
         vehiclePaused[vehicle.imei] = vehiclePaused[vehicle.imei] ?: false
         vehiclePauseTime[vehicle.imei] = vehiclePauseTime[vehicle.imei] ?: 0L
         vehicleLastUpdateTime[vehicle.imei] = vehicleLastUpdateTime[vehicle.imei] ?: System.currentTimeMillis()
@@ -104,7 +105,14 @@ class VehicleSimulationService(
             if (vehiclePaused[vehicle.imei] == true) return
 
             generateNewSpeed(vehicle.imei)
-            println("Veículo ${vehicle.plateNumber} retomou movimento com velocidade: ${String.format("%.2f", vehicleSpeeds[vehicle.imei])} km/h")
+            println(
+                "Veículo ${vehicle.plateNumber} retomou movimento com velocidade: ${
+                    String.format(
+                        "%.2f",
+                        vehicleSpeeds[vehicle.imei]
+                    )
+                } km/h"
+            )
         }
 
         if (handlePause.shouldPause()) {
@@ -156,7 +164,14 @@ class VehicleSimulationService(
         coordinatesRepository.updateSpeed(vehicle.imei, Random.nextDouble(minSpeed, maxSpeed))
 
         generateNewSpeed(vehicle.imei)
-        println("Veículo ${vehicle.plateNumber} retomou movimento com velocidade: ${String.format("%.2f", vehicleSpeeds[vehicle.imei])} km/h")
+        println(
+            "Veículo ${vehicle.plateNumber} retomou movimento com velocidade: ${
+                String.format(
+                    "%.2f",
+                    vehicleSpeeds[vehicle.imei]
+                )
+            } km/h"
+        )
     }
 
     private suspend fun handleDefectResolution(vehicle: Vehicle, currentTime: Long) {
@@ -166,7 +181,7 @@ class VehicleSimulationService(
             vehicleHasDefect[vehicle.imei] = false
             defectStartTime.remove(vehicle.imei)
             handleDefect.execute(vehicle, false)
-            println("Veículo ${vehicle.plateNumber} saiu do estado de defeito após ${defectDuration/1000} segundos.")
+            println("Veículo ${vehicle.plateNumber} saiu do estado de defeito após ${defectDuration / 1000} segundos.")
         }
     }
 
