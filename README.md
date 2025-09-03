@@ -5,7 +5,7 @@
 ---
 
 ## 📃 Descrição
-O Vehicle Tracker é uma aplicação Kotlin que simula o movimento de veículos, gerenciando coordenadas, velocidades e notificações de defeitos. Ele se integra com o backend Supabase para enviar dados de veículos e coordenadas em tempo real, usando Coroutines para operações assíncronas e persistência local para estados. O projeto é projetado para trabalhar em conjunto com o Drive Manager (Consulte o repositório), uma aplicação Flutter que consome os dados gerados pelo Vehicle Tracker para monitoramento e gerenciamento de frotas. O projeto segue uma **arquitetura em camadas** com influência de **Domain-Driven Design (DDD)**. Possui as camadas `domain` (modelos, casos de uso e interfaces de repositório), `application` (orquestração da lógica de negócio), `infrastructure` (implementações de API e persistência) e `presentation` (execução da simulação). Essa arquitetura promove modularidade, testabilidade e separação de responsabilidades, com forte ênfase em abstrações do domínio e injeção de dependências.
+O Vehicle Tracker é uma aplicação Kotlin que simula o movimento de veículos, gerenciando coordenadas, velocidades e notificações de defeitos. Ele se integra com o backend Supabase para enviar dados de veículos e coordenadas em tempo real, usando Coroutines para operações assíncronas e persistência local para estados. O projeto é projetado para trabalhar em conjunto com o Drive Manager (consulte o [repositório](https://github.com/FMoreiraSouza/VehicleTracker)), uma aplicação Flutter que consome os dados gerados pelo Vehicle Tracker para monitoramento e gerenciamento de frotas. O projeto segue uma **arquitetura em camadas** com influência de **Domain-Driven Design (DDD)**. Possui as camadas `domain` (modelos, casos de uso e interfaces de repositório), `application` (orquestração da lógica de negócio), `infrastructure` (implementações de API e persistência) e `presentation` (execução da simulação). Essa arquitetura promove modularidade, testabilidade e separação de responsabilidades, com forte ênfase em abstrações do domínio e injeção de dependências.
 
 ---
 
@@ -130,4 +130,8 @@ O Vehicle Tracker é uma aplicação Kotlin que simula o movimento de veículos,
 - Clique em **Run** ou abra o terminal e use o comando:
   ```bash
   ./gradlew run
-- O servidor iniciará, e a simulação atualizará coordenadas a cada 5 segundos, com logs exibidos no console. 
+- O servidor iniciará, e a simulação atualizará coordenadas a cada 5 segundos, com logs exibidos no console.
+
+ ## 🎥 Apresentação
+
+Conferir em : 
