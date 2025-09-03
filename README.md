@@ -5,11 +5,13 @@
 ---
 
 ## 📃 Descrição
+
 O Vehicle Tracker é uma aplicação Kotlin que simula o movimento de veículos, gerenciando coordenadas, velocidades e notificações de defeitos. Ele se integra com o backend Supabase para enviar dados de veículos e coordenadas em tempo real, usando Coroutines para operações assíncronas e persistência local para estados. O projeto é projetado para trabalhar em conjunto com o Drive Manager (consulte o [repositório](https://github.com/FMoreiraSouza/DriveManager)), uma aplicação Flutter que consome os dados gerados pelo Vehicle Tracker para monitoramento e gerenciamento de frotas. O projeto segue uma **arquitetura em camadas** com influência de **Domain-Driven Design (DDD)**. Possui as camadas `domain` (modelos, casos de uso e interfaces de repositório), `application` (orquestração da lógica de negócio), `infrastructure` (implementações de API e persistência) e `presentation` (execução da simulação). Essa arquitetura promove modularidade, testabilidade e separação de responsabilidades, com forte ênfase em abstrações do domínio e injeção de dependências.
 
 ---
 
 ## 💻 Tecnologias Utilizadas
+
 - **Kotlin**: Linguagem de programação principal.
 - **Coroutines**: Para operações assíncronas.
 - **Supabase**: Backend para dados e notificações em tempo real.
@@ -39,14 +41,15 @@ O Vehicle Tracker é uma aplicação Kotlin que simula o movimento de veículos,
 ## ▶️ Como Rodar o Projeto
 
 ### Pré-requisitos
+
 - **JDK 17** ou superior.
 - **Kotlin 2.2.0**.
 - Conta no [Supabase](https://supabase.com/).
 - **IntelliJ IDEA** (versão recomendada: 2024.2 ou mais recente).
 
 ### Clone o repositório
-- git clone https://github.com/seu-user/vehicle-simulation-app.git
-- cd vehicle-simulation-app
+
+- git clone URL do projeto
 
 ### Configuração
 
@@ -127,6 +130,7 @@ O Vehicle Tracker é uma aplicação Kotlin que simula o movimento de veículos,
   ./gradlew build
 
 ### Rode o servidor
+
 - Clique em **Run** ou abra o terminal e use o comando:
   ```bash
   ./gradlew run
