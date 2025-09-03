@@ -6,7 +6,7 @@
 
 ## 📃 Descrição
 
-O **Vehicle Tracker** é uma aplicação Kotlin que simula o movimento de veículos, gerenciando coordenadas, velocidades e notificações de defeitos. Ele se integra com o backend **Supabase** para enviar dados de veículos e coordenadas em tempo real, usando **Coroutines** para operações assíncronas e persistência local para estados. O projeto é projetado para trabalhar em conjunto com o **Drive Manager**, uma aplicação Flutter que consome os dados gerados pelo **Vehicle Tracker** para monitoramento e gerenciamento de frotas. O projeto segue a **Clean Architecture**, com camadas **domain** (modelos e casos de uso), **application** (orquestração), **infrastructure** (API e persistência) e **presentation** (execução da simulação). Essa arquitetura promove modularidade e testabilidade.
+O **Vehicle Tracker** é uma aplicação Kotlin que simula o movimento de veículos, gerenciando coordenadas, velocidades e notificações de defeitos. Ele se integra com o backend **Supabase** para enviar dados de veículos e coordenadas em tempo real, usando **Coroutines** para operações assíncronas e persistência local para estados. O projeto é projetado para trabalhar em conjunto com o **Drive Manager** (Consulte o [repositório](https://github.com/FMoreiraSouza/DriverManager.git)), uma aplicação Flutter que consome os dados gerados pelo **Vehicle Tracker** para monitoramento e gerenciamento de frotas. O projeto segue a **Clean Architecture**, com camadas **domain** (modelos e casos de uso), **application** (orquestração), **infrastructure** (API e persistência) e **presentation** (execução da simulação). Essa arquitetura promove modularidade e testabilidade.
 
 ---
 
@@ -38,18 +38,6 @@ O **Vehicle Tracker** é uma aplicação Kotlin que simula o movimento de veícu
 - Dados enviados para o Supabase em tempo real para consumo pelo **Drive Manager**.
 
 ---
-
-## ▶️ Como Rodar o Projeto
-
-### Pré-requisitos
-- **JDK 17** ou superior.
-- **Kotlin 2.2.0**.
-- Conta no [Supabase](https://supabase.com/).
-- **IntelliJ IDEA** (versão recomendada: 2024.2 ou mais recente).
-  
-### Clone o repositório
-- git clone https://github.com/seu-user/VehicleTracker.git
-- cd vehicle-simulation-app
 
 ## ▶️ Como Rodar o Projeto
 
