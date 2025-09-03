@@ -15,7 +15,6 @@ O Vehicle Tracker é uma aplicação Kotlin que simula o movimento de veículos,
 - **Supabase**: Backend para dados e notificações em tempo real.
 - **Moshi**: Serialização JSON.
 - **OkHttp**: Requisições HTTP.
-- **Arquitetura em Camadas com Influência de DDD**: Organização do código com separação de responsabilidades, modelos de domínio, casos de uso e repositórios.
 
 ---
 
