@@ -5,19 +5,17 @@
 ---
 
 ## 📃 Descrição
-
-O **Vehicle Tracker** é uma aplicação Kotlin que simula o movimento de veículos, gerenciando coordenadas, velocidades e notificações de defeitos. Ele se integra com o backend **Supabase** para enviar dados de veículos e coordenadas em tempo real, usando **Coroutines** para operações assíncronas e persistência local para estados. O projeto é projetado para trabalhar em conjunto com o **Drive Manager** (Consulte o [repositório](https://github.com/FMoreiraSouza/DriverManager.git)), uma aplicação Flutter que consome os dados gerados pelo **Vehicle Tracker** para monitoramento e gerenciamento de frotas. O projeto segue a **Clean Architecture**, com camadas **domain** (modelos e casos de uso), **application** (orquestração), **infrastructure** (API e persistência) e **presentation** (execução da simulação). Essa arquitetura promove modularidade e testabilidade.
+O Vehicle Tracker é uma aplicação Kotlin que simula o movimento de veículos, gerenciando coordenadas, velocidades e notificações de defeitos. Ele se integra com o backend Supabase para enviar dados de veículos e coordenadas em tempo real, usando Coroutines para operações assíncronas e persistência local para estados. O projeto é projetado para trabalhar em conjunto com o Drive Manager (Consulte o repositório), uma aplicação Flutter que consome os dados gerados pelo Vehicle Tracker para monitoramento e gerenciamento de frotas. O projeto segue uma **arquitetura em camadas** com influência de **Domain-Driven Design (DDD)**. Possui as camadas `domain` (modelos, casos de uso e interfaces de repositório), `application` (orquestração da lógica de negócio), `infrastructure` (implementações de API e persistência) e `presentation` (execução da simulação). Essa arquitetura promove modularidade, testabilidade e separação de responsabilidades, com forte ênfase em abstrações do domínio e injeção de dependências.
 
 ---
 
 ## 💻 Tecnologias Utilizadas
-
 - **Kotlin**: Linguagem de programação principal.
-- **Coroutines**: Operações assíncronas.
+- **Coroutines**: Para operações assíncronas.
 - **Supabase**: Backend para dados e notificações em tempo real.
 - **Moshi**: Serialização JSON.
 - **OkHttp**: Requisições HTTP.
-- **Clean Architecture**: Separação de responsabilidades.
+- **Arquitetura em Camadas com Influência de DDD**: Organização do código com separação de responsabilidades, modelos de domínio, casos de uso e repositórios.
 
 ---
 
