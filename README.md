@@ -31,12 +31,6 @@ O **Vehicle Tracker** é uma aplicação Kotlin que simula o movimento de veícu
 
 ---
 
-## 🔗 Integração com Drive Manager
-
-O **Vehicle Tracker** é o backend que fornece dados em tempo real para o **Drive Manager**, uma aplicação Flutter para gerenciamento de frotas. Ele simula o movimento de veículos e envia dados para as tabelas `vehicles`, `vehicle_coordinates` e `notifications` no Supabase, que são consumidas pelo **Drive Manager** para exibir localizações, velocidades e notificações de defeitos em tempo real. Para que o **Drive Manager** funcione corretamente, o **Vehicle Tracker** deve estar configurado e em execução, usando as mesmas credenciais do Supabase configuradas no **Drive Manager**. Consulte o repositório do [Drive Manager](https://github.com/seu-user/drive-manager-app) para mais detalhes sobre a configuração do cliente.
-
----
-
 ## 📱 Execução
 
 - Simulação a cada 5 segundos via `Timer`.
