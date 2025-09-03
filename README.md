@@ -49,7 +49,7 @@ O Vehicle Tracker é uma aplicação Kotlin que simula o movimento de veículos,
 
 ### Clone o repositório
 
-- git clone URL do projeto
+- git clone <URL_DO_PROJETO>
 
 ### Configuração
 
