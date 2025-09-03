@@ -48,7 +48,7 @@ O **Vehicle Tracker** é uma aplicação Kotlin que simula o movimento de veícu
 - **IntelliJ IDEA** (versão recomendada: 2024.2 ou mais recente).
   
 ### Clone o repositório
-- git clone https://github.com/seu-user/vehicle-simulation-app.git
+- git clone https://github.com/seu-user/VehicleTracker.git
 - cd vehicle-simulation-app
 
 ## ▶️ Como Rodar o Projeto
