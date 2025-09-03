@@ -132,6 +132,6 @@ O Vehicle Tracker é uma aplicação Kotlin que simula o movimento de veículos,
   ./gradlew run
 - O servidor iniciará, e a simulação atualizará coordenadas a cada 5 segundos, com logs exibidos no console.
 
- ## 🎥 Apresentação
+ ## 🎥 Confira a Apresentação do Sistema
 
-Conferir em : 
+Confira a apresentação do sistema: [Apresentação](https://youtu.be/CRELJC7L0mc)
