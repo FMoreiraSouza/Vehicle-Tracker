@@ -6,20 +6,18 @@
 
 ## 📃 Descrição
 
-O **Vehicle Tracker** é uma aplicação Kotlin que simula o movimento de veículos, gerenciando coordenadas, velocidades e notificações de defeitos. Integra-se com o backend **Supabase** para dados de veículos e coordenadas, usando **Coroutines** para operações assíncronas e persistência local para estados.
-
-O projeto segue a **Clean Architecture**, com camadas **domain** para modelos e casos de uso, **application** para orquestração), **infrastructure** para API e persistência, e **presentation** para a execução da simulação. A arquitetura promove modularidade e testabilidade.
+O **Vehicle Tracker** é uma aplicação Kotlin que simula o movimento de veículos, gerenciando coordenadas, velocidades e notificações de defeitos. Ele se integra com o backend **Supabase** para enviar dados de veículos e coordenadas em tempo real, usando **Coroutines** para operações assíncronas e persistência local para estados. O projeto é projetado para trabalhar em conjunto com o **Drive Manager**, uma aplicação Flutter que consome os dados gerados pelo **Vehicle Tracker** para monitoramento e gerenciamento de frotas. O projeto segue a **Clean Architecture**, com camadas **domain** (modelos e casos de uso), **application** (orquestração), **infrastructure** (API e persistência) e **presentation** (execução da simulação). Essa arquitetura promove modularidade e testabilidade.
 
 ---
 
 ## 💻 Tecnologias Utilizadas
 
-- **Kotlin** → Linguagem de programação.
-- **Coroutines** → Operações assíncronas.
-- **Supabase** → Backend para dados e notificações.
-- **Moshi** → Serialização JSON.
-- **OkHttp** → Requisições HTTP.
-- **Clean Architecture** → Separação de responsabilidades.
+- **Kotlin**: Linguagem de programação principal.
+- **Coroutines**: Operações assíncronas.
+- **Supabase**: Backend para dados e notificações em tempo real.
+- **Moshi**: Serialização JSON.
+- **OkHttp**: Requisições HTTP.
+- **Clean Architecture**: Separação de responsabilidades.
 
 ---
 
@@ -28,8 +26,14 @@ O projeto segue a **Clean Architecture**, com camadas **domain** para modelos e 
 - **Simulação de Movimento**: Atualiza coordenadas, velocidade e quilometragem.
 - **Gestão de Defeitos**: Detecta defeitos, pausa veículos e envia notificações.
 - **Persistência**: Salva estados em `vehicle_state.dat`.
-- **Notificações**: Alertas de defeitos via Supabase.
+- **Notificações**: Envia alertas de defeitos para o Supabase.
 - **Paradas**: Simula pausas para abastecimento ou defeitos.
+
+---
+
+## 🔗 Integração com Drive Manager
+
+O **Vehicle Tracker** é o backend que fornece dados em tempo real para o **Drive Manager**, uma aplicação Flutter para gerenciamento de frotas. Ele simula o movimento de veículos e envia dados para as tabelas `vehicles`, `vehicle_coordinates` e `notifications` no Supabase, que são consumidas pelo **Drive Manager** para exibir localizações, velocidades e notificações de defeitos em tempo real. Para que o **Drive Manager** funcione corretamente, o **Vehicle Tracker** deve estar configurado e em execução, usando as mesmas credenciais do Supabase configuradas no **Drive Manager**. Consulte o repositório do [Drive Manager](https://github.com/seu-user/drive-manager-app) para mais detalhes sobre a configuração do cliente.
 
 ---
 
@@ -37,8 +41,21 @@ O projeto segue a **Clean Architecture**, com camadas **domain** para modelos e 
 
 - Simulação a cada 5 segundos via `Timer`.
 - Validação de coordenadas em áreas de rota predefinidas.
+- Dados enviados para o Supabase em tempo real para consumo pelo **Drive Manager**.
 
 ---
+
+## ▶️ Como Rodar o Projeto
+
+### Pré-requisitos
+- **JDK 17** ou superior.
+- **Kotlin 2.2.0**.
+- Conta no [Supabase](https://supabase.com/).
+- **IntelliJ IDEA** (versão recomendada: 2024.2 ou mais recente).
+  
+### Clone o repositório
+- git clone https://github.com/seu-user/vehicle-simulation-app.git
+- cd vehicle-simulation-app
 
 ## ▶️ Como Rodar o Projeto
 
@@ -55,7 +72,74 @@ O projeto segue a **Clean Architecture**, com camadas **domain** para modelos e 
 ### Configuração
 
 - Configure SUPABASE_URL e SUPABASE_KEY em AppConfig.kt ou como variáveis de ambiente.
-- Crie as tabelas vehicles, vehicle_coordinates, e notifications no Supabase.
+- Crie as tabelas no Supabase:
+  - No painel do Supabase, acesse a seção SQL Editor e execute os seguintes scripts para criar as tabelas necessárias:
+    ```bash
+    sqlCREATE TABLE public.vehicles (
+    id SERIAL NOT NULL,
+    plate_number TEXT NULL,
+    brand TEXT NULL,
+    model TEXT NULL,
+    mileage REAL NULL,
+    imei BIGINT NULL,
+    hasDefect BOOLEAN NULL DEFAULT false,
+    CONSTRAINT vehicles_pkey PRIMARY KEY (id)
+    ) TABLESPACE pg_default;
+
+    CREATE TABLE public.vehicle_coordinates (
+      id SERIAL NOT NULL,
+      latitude DOUBLE PRECISION NOT NULL,
+      longitude DOUBLE PRECISION NOT NULL,
+      timestamp TIMESTAMP WITH TIME ZONE NULL DEFAULT now(),
+      imei BIGINT NULL,
+      isStopped BOOLEAN NULL DEFAULT true,
+      speed DOUBLE PRECISION NULL,
+      CONSTRAINT vehicle_coordinates_pkey PRIMARY KEY (id)
+    ) TABLESPACE pg_default;
+    
+    CREATE TABLE public.notifications (
+      id SERIAL NOT NULL,
+      message TEXT NOT NULL,
+      created_at TIMESTAMP WITHOUT TIME ZONE NULL DEFAULT now(),
+      plate_number TEXT NULL,
+      CONSTRAINT notifications_pkey PRIMARY KEY (id)
+    ) TABLESPACE pg_default;
+- Habilite o Row Level Security (RLS):
+  - No Supabase Dashboard, vá para Database > Tables e selecione cada tabela (vehicles, vehicle_coordinates, notifications).
+  - Ative o RLS para cada tabela clicando em Enable RLS.
+- Execute o seguinte script SQL no SQL Editor para configurar as políticas de RLS, permitindo leitura, inserção e atualização para usuários autenticados:
+  ```bash
+  -- Política para a tabela vehicles
+  CREATE POLICY "Allow all operations for public on vehicles" ON public.vehicles
+  FOR ALL
+  TO public
+  USING (true)
+  WITH CHECK (true);
+
+  -- Política para a tabela vehicle_coordinates
+  CREATE POLICY "Allow all operations for public on vehicle_coordinates" ON public.vehicle_coordinates
+  FOR ALL
+  TO public
+  USING (true)
+  WITH CHECK (true);
+
+  -- Política para a tabela notifications
+  CREATE POLICY "Allow all operations for public on notifications" ON public.notifications
+  FOR ALL
+  TO public
+  USING (true)
+  WITH CHECK (true);
+- Habilite o Realtime:
+  - Para ativar o Realtime nas tabelas vehicles, vehicle_coordinates e notifications, é necessário adicionar essas tabelas à publicação supabase_realtime (ou criar uma nova publicação, se preferir).
+  - Execute o seguinte script SQL no SQL Editor do Supabase:
+  ```bash
+  sql-- Criar a publicação supabase_realtime (se ainda não existir)
+  CREATE PUBLICATION supabase_realtime FOR TABLE public.vehicles, public.vehicle_coordinates, public.notifications;
+  
+  -- Caso a publicação já exista, adicione as tabelas à publicação existente
+  ALTER PUBLICATION supabase_realtime ADD TABLE public.vehicles;
+  ALTER PUBLICATION supabase_realtime ADD TABLE public.vehicle_coordinates;
+  ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
 
 ### Instale as dependências:
 
